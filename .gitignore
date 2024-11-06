@@ -1,2 +1,6 @@
 *.lock
-
+yandex_plag
+yandex_clear
+*__pycache__
+*.json
+*.csv
