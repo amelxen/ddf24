@@ -3,7 +3,7 @@ from ast import iter_child_nodes
 
 
 class AstHashVisitor:
-    def __init__(self, d, min_size = 15):
+    def __init__(self, d, min_size = 20):
         self.mod = 1000000007
         self.d = d
         self.min_size = min_size
@@ -37,4 +37,10 @@ if __name__ == "__main__":
         code = file.read()
     d = dict()
     visitor = AstHashVisitor(d)
-    res = visitor.visit(parse(code))
+    visitor.visit(parse(code))
+
+    potential_clones = []
+    for key, value in d.items():
+        if len(value) < 2:
+            continue
+        potential_clones.append(value)
