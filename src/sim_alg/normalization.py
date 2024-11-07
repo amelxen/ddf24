@@ -2,13 +2,19 @@ import pycode_similar
 import ast
 import tokenize
 from io import BytesIO
+import vulture
+import vulture.version
+import sys, os
+
 
 class Normalizer(ast.NodeTransformer):
 
-    def __init__(self, keep_prints=False):
+    def __init__(self, unused_vars=dict()):
         super(Normalizer, self).__init__()
-        self.keep_prints = keep_prints
         self._node_count = 0
+        self.unused_vars = unused_vars
+        self._assign_ctx = False
+        self._tuple_ctx = False
 
     @staticmethod
     def _mark_docstring_sub_nodes(node):
@@ -26,12 +32,7 @@ class Normalizer(ast.NodeTransformer):
 
     @staticmethod
     def _is_docstring(node):
-        return getattr(node, 'is_docstring', False)
-
-    def generic_visit(self, node):
-        self._node_count = self._node_count + 1
-        self._mark_docstring_sub_nodes(node)
-        return super(Normalizer, self).generic_visit(node)
+        return getattr(node, 'is_docstring', False)        
 
     def visit_Constant(self, node):
         node.value = "_VALUE_"
@@ -54,15 +55,17 @@ class Normalizer(ast.NodeTransformer):
         return node
 
     def visit_Name(self, node):
-        if not (node.id.startswith("_") and node.id.endswith("_")):
-            node.id = "_NAME_"
-        del node.ctx
+        if node.id in self.unused_vars and node.lineno in self.unused_vars[node.id]:
+            if self._assign_ctx and not self._tuple_ctx:
+                return
+            node.id = "_UNUSED_"
+        elif not (node.id.startswith("_") and node.id.endswith("_")):
+                node.id = "_NAME_"
         self.generic_visit(node)
         return node
 
     def visit_Attribute(self, node):
         node.attr = "_ATTR_"
-        del node.ctx
         self.generic_visit(node)
         return node
     
@@ -81,6 +84,46 @@ class Normalizer(ast.NodeTransformer):
             node.func.id = "_FUN_"
         self.generic_visit(node)
         return node
+    
+    def visit_Assign(self, node):
+        self._assign_ctx = True
+        new_targets = []
+        for target in node.targets:
+            tmp = self.visit(target)
+            if tmp is not None:
+                new_targets.append(tmp)
+        self._assign_ctx = False
+        if len(new_targets) == 0:
+            return
+        self.generic_visit(node)
+        return node
+    
+    def visit_AnnAssign(self, node):
+        self._assign_ctx = True
+        tmp = self.visit(node.target)
+        self._assign_ctx = False
+        if tmp is None:
+            return
+        self.generic_visit(node)
+        return node
+    
+    def visit_AugAssign(self, node):
+        self._assign_ctx = True
+        tmp = self.visit(node.target)
+        self._assign_ctx = False
+        if tmp is None:
+            return
+        self.generic_visit(node)
+        return node
+    
+    def visit_Tuple(self, node):
+        if self._assign_ctx:
+            self._tuple_ctx = True
+        self.generic_visit(node)
+        self._tuple_ctx = False
+        for node in node.elts:
+            if not isinstance(node, ast.Name) or node.id != "_UNUSED_":
+                 return node
 
     def visit_Import(self, node):
         pass
@@ -89,15 +132,33 @@ class Normalizer(ast.NodeTransformer):
         pass
 
 
-def remove_unused(code: str) -> str:
-    pass
+def get_unused_vars(code: str) -> dict[str, set[int]]:
+    vul = vulture.Vulture()
+    vul.scan(code)
+    unused = vul.get_unused_code()
+    res = {}
+    for item in unused:
+        if item.typ == "variable":
+            res.setdefault(item.name, set()).add(item.first_lineno)
+    return res
 
 
 def str_normalization(code: str, 
-                      normalizer: ast.NodeTransformer = ast.NodeTransformer()
-                      ) -> str:
+                      normalizer: type[ast.NodeTransformer] = ast.NodeTransformer,
+                      remove_unused = False) -> str:
+    if normalizer is Normalizer:
+        if remove_unused:
+            unused_vars = get_unused_vars(code)
+            norm = normalizer(unused_vars)
+            if len(unused_vars) > 0:
+                pass
+        else:
+            norm = normalizer()
+    else:
+        norm = normalizer()
+    
     root = ast.parse(code)
-    normalizer.visit(root)
+    norm.visit(root)
     res = ast.unparse(root)
     return res
 
