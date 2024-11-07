@@ -1,7 +1,6 @@
 from ast import parse
 from ast import iter_child_nodes
 
-
 def line_count(node):
     try:
         if node.end_lineno is None or node.end_col_offset is None:
@@ -10,16 +9,15 @@ def line_count(node):
     except AttributeError:
         return 0
 
-
 class AstHashVisitor:
-    def __init__(self, d, min_size=20, min_lines=2):
+    def __init__(self, d, min_size = 20, min_lines = 5):
         self.mod = 1000000007
         self.d = d
         self.min_size = min_size
         self.min_lines = min_lines
 
     def node_hash(self, l):
-        return sum(l) % self.mod  # TODO maybe change to better hash
+        return sum(l) % self.mod #TODO maybe change to better hash
 
     def visit_children(self, l):
         return [self.visit(el) for el in l]
@@ -46,7 +44,7 @@ class AstHashVisitor:
 
 
 if __name__ == "__main__":
-    with open("levenshtein.py", "r") as file:
+    with open('levenshtein.py', 'r') as file:
         code = file.read()
     d = dict()
     visitor = AstHashVisitor(d)
