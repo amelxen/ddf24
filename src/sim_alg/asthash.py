@@ -1,8 +1,6 @@
 from ast import parse
 from ast import iter_child_nodes
 
-from ast import get_source_segment
-
 def line_count(node):
     try:
         if node.end_lineno is None or node.end_col_offset is None:
