@@ -27,19 +27,21 @@ if __name__ == "__main__":
     data_plag = tools.read_yandex_plag()
     data = data_clear.copy()
     data.update(data_plag)
-    count = 1
     data_copy = {}
+
     for key in data:
         try:
-            seq = normalization.str_normalization(data[key], normalization.Normalizer(True))
+            seq = normalization.str_normalization(data[key], normalization.Normalizer, False)
             seq = normalization.str_tokenize(seq)
             data_copy[key] = seq
         except Exception:
             pass
-    # data = data_copy
+
+    # print(' '.join(data_copy["plag_0"]))
+    # data_copy = dict(list(data_copy.items())[:100])
 
     matrics = levenshtein_dist_ratio_array(data_copy, data_copy, True)
-    threshold = 0.9
+    threshold = 0.85
     res = {}
     for s_key, s_dists in matrics.items():
         res[s_key] = {}
@@ -48,5 +50,5 @@ if __name__ == "__main__":
                 continue
             if ratio >= threshold:
                 res[s_key][t_key] = ratio
-    with open("result2.json", "w") as file:
+    with open("result3.json", "w") as file:
         json.dump(res, file)
