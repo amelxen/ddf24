@@ -8,6 +8,7 @@ from sklearn.model_selection import GridSearchCV
 <<<<<<< HEAD
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from sklearn.metrics import precision_score
 >>>>>>> 2cfebcc (some ref)
@@ -26,6 +27,10 @@ def generate_synthetic(size, dim=6, noise=0.1):
 import pathlib
 import pickle
 >>>>>>> 0d5b7cd (final infra, cli done)
+=======
+import pathlib
+import pickle
+>>>>>>> 0d5b7cd22dce87b239cb27fa86b984e776f690e9
 
 
 def load_data(path="data.csv"):

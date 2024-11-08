@@ -41,6 +41,7 @@ class AstHashVisitor:
         children_hash = self.visit_children(children)
         return self.save_hash(node, [node_hash] + children_hash)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 if __name__ == "__main__":
@@ -58,3 +59,5 @@ if __name__ == "__main__":
     print(potential_clones)
 =======
 >>>>>>> 0d5b7cd (final infra, cli done)
+=======
+>>>>>>> 0d5b7cd22dce87b239cb27fa86b984e776f690e9
