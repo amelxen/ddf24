@@ -3,6 +3,7 @@ import ast
 import tokenize
 from io import BytesIO
 import vulture
+import sys, os
 
 
 class Normalizer(ast.NodeTransformer):
@@ -131,9 +132,15 @@ class Normalizer(ast.NodeTransformer):
 
 
 def get_unused_vars(code: str) -> dict[str, set[int]]:
-    vul = vulture.Vulture()
-    vul.scan(code)
-    unused = vul.get_unused_code()
+    try:
+        vul = vulture.Vulture()
+        sys.stdout = open(os.devnull, "w")
+        vul.scan(code)
+        unused = vul.get_unused_code()
+        sys.stdout = sys.__stdout__
+    except Exception as ex:
+        sys.stdout = sys.__stdout__
+        raise ex
     res = {}
     for item in unused:
         if item.typ == "variable":

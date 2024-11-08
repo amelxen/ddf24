@@ -1,6 +1,5 @@
 import itertools
 from _ast import AST
-from ast import parse
 
 from index.asthash import AstHashVisitor, line_count
 
@@ -41,22 +40,3 @@ class AstIndexer:
 
         sorted_samples = sorted(samples_similarity, key=lambda x: x[1], reverse=True)
         return list(map(lambda x: x[0], sorted_samples))[:top_k]
-
-
-if __name__ == "__main__":
-    # example
-    samples = [
-        "simple_ast.py",
-        "levenshtein.py",
-        "levenshtein_similar.py",
-        "levenshtein_less_similar.py",
-    ]
-    files = []
-
-    for sample in samples:
-        with open(sample, "r") as file:
-            files.append(file.read())
-
-    indexer = AstIndexer(list(map(lambda x: (x[0], parse(x[1])), zip(samples, files))))
-
-    print(indexer.get_top_k("levenshtein.py", 2))

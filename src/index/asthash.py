@@ -1,4 +1,3 @@
-from ast import parse
 from ast import iter_child_nodes
 
 def line_count(node):
@@ -41,6 +40,7 @@ class AstHashVisitor:
         node_hash = (1, hash(node.__class__.__name__))
         children_hash = self.visit_children(children)
         return self.save_hash(node, [node_hash] + children_hash)
+<<<<<<< HEAD
 
 
 if __name__ == "__main__":
@@ -56,3 +56,5 @@ if __name__ == "__main__":
             continue
         potential_clones.append(value)
     print(potential_clones)
+=======
+>>>>>>> 0d5b7cd (final infra, cli done)

@@ -40,7 +40,7 @@ def read_from_dir(path: pathlib.Path) -> dict[str, str]:
     count = 0
     for file in path.iterdir():
         try:
-            res[file.with_suffix("").name + str(count)] = read_code(file)
+            res[file.name] = read_code(file)
             count += 1
         except Exception:
             continue
@@ -48,7 +48,7 @@ def read_from_dir(path: pathlib.Path) -> dict[str, str]:
 
 
 class PrintRunTime:
-    def __init__(self, step_unit=1, max_count: int = None, deley = 1):
+    def __init__(self, step_unit=1, max_count: int = None, deley=1):
         self.start_time = time.time()
         self.count = 0
         self.last_dump_time = -1

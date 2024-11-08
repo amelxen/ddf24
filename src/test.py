@@ -22,7 +22,6 @@ def main():
     data_tree = {}
     data_tokens = {}
 
-
     for key in data:
         try:
             tree = normalization.tree_normalization(
@@ -39,7 +38,7 @@ def main():
 
     indexer = top_k.AstIndexer(list(data_tree.items()))
     data_set = ["name,lev,lcs,ast_str,label"]
-    loger = tools.PrintRunTime(1, len(data_tree)*4, 0)
+    loger = tools.PrintRunTime(1, len(data_tree) * 4, 0)
     for target in data_tree.keys():
 
         potential_clones = indexer.get_top_k(target, 20)
@@ -47,24 +46,30 @@ def main():
         for clone in potential_clones:
             tree_samples[clone] = ast.dump(data_tree[clone], indent=4)
             tok_samples[clone] = data_tokens[clone]
-        loger.dump(f"index \"{target}\"")
+        loger.dump(f'index "{target}"')
 
-        features = [f"\"{target}\""]
+        features = [f'"{target}"']
 
-        mat = sim_alg.levenshtein.levenshtein_dist_ratio_array(tok_samples, {target: data_tokens[target]})
+        mat = sim_alg.levenshtein.levenshtein_dist_ratio_array(
+            tok_samples, {target: data_tokens[target]}
+        )
         feature = aggregate.agg_max(mat)
         features.append(f"{feature[target]:.3f}")
-        loger.dump(f"lev \"{target}\"")
+        loger.dump(f'lev "{target}"')
 
-        mat = sim_alg.lcs.lcs_dist_ratio_array(tok_samples, {target: data_tokens[target]})
+        mat = sim_alg.lcs.lcs_dist_ratio_array(
+            tok_samples, {target: data_tokens[target]}
+        )
         feature = aggregate.agg_max(mat)
         features.append(f"{feature[target]:.3f}")
-        loger.dump(f"lcs \"{target}\"")
+        loger.dump(f'lcs "{target}"')
 
-        mat = sim_alg.ast.ast_str_diff_array(tree_samples, {target: ast.dump(data_tree[target])})
+        mat = sim_alg.ast.ast_str_diff_array(
+            tree_samples, {target: ast.dump(data_tree[target])}
+        )
         feature = aggregate.agg_max(mat)
         features.append(f"{feature[target]:.3f}")
-        loger.dump(f"ast \"{target}\"")
+        loger.dump(f'ast "{target}"')
 
         # mat = sim_alg.ast.ast_tree_diff_array(tree_samples, {target: ast.dump(data_tree[target])}, True)
         # feature = aggregate.agg_max(mat)
@@ -75,12 +80,12 @@ def main():
             features.append(str(0))
         else:
             features.append(str(1))
-        
-        data_set.append(','.join(features))
+
+        data_set.append(",".join(features))
         loger.dump(target)
 
     with open("test.csv", "w") as file:
-        file.write('\n'.join(data_set))
+        file.write("\n".join(data_set))
 
 
 if __name__ == "__main__":
