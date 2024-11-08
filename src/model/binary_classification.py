@@ -5,10 +5,14 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 <<<<<<< HEAD
+<<<<<<< HEAD
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 =======
 from sklearn.metrics import precision_score
 >>>>>>> 2cfebcc (some ref)
+=======
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+>>>>>>> 10ce618 (some ref...)
 
 
 def generate_synthetic(size, dim=6, noise=0.1):
