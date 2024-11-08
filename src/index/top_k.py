@@ -2,7 +2,7 @@ import itertools
 from _ast import AST
 from ast import parse
 
-from src.index.asthash import AstHashVisitor, line_count
+from index.asthash import AstHashVisitor, line_count
 
 
 class AstIndexer:

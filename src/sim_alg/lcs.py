@@ -1,6 +1,6 @@
 from typing import Sequence
 
-import src.tools as tools
+import tools as tools
 
 
 def lcs(a: Sequence, b: Sequence) -> int:

@@ -1,43 +1,86 @@
+import sim_alg.ast
+import sim_alg.lcs
+import sim_alg.levenshtein
 import tools
 import normalization
-from sim_alg import ast, lcs, levenshtein
+import sim_alg
 from index import asthash, top_k
 from model import binary_classification
+from model import aggregate
+import time
+
+import ast
 
 
 def main():
-    # data_clear = tools.read_yandex_clear()
+    data_clear = tools.read_yandex_clear()
     data_plag = tools.read_yandex_plag()
-    data = data_plag.copy()
-    # data.update(data_plag)
-    data_copy = {}
+    data = data_clear.copy()
+    data.update(data_plag)
 
-    data = dict(list(data.items())[:100])
+    # data = dict(list(data.items())[:20])
+    data_tree = {}
+    data_tokens = {}
+
 
     for key in data:
         try:
-            seq = normalization.str_normalization(
-                data[key], normalization.Normalizer, False
+            tree = normalization.tree_normalization(
+                data[key], normalization.Normalizer, True
             )
-            seq = normalization.str_tokenize(seq)
-            data_copy[key] = seq
+            toks = normalization.str_tokenize(ast.unparse(tree))
+            data_tree[key] = tree
+            data_tokens[key] = toks
         except Exception:
             pass
 
-    print(" ".join(data_copy["plag_0"]))
+    # print(" ".join(data_tokens["plag_0"]))
+    # print(ast.dump(data_tree["plag_0"], indent=2))
 
-    # matrics = levenshtein_dist_ratio_array(data_copy, data_copy, True)
-    # threshold = 0.85
-    # res = {}
-    # for s_key, s_dists in matrics.items():
-    #     res[s_key] = {}
-    #     for t_key, ratio in s_dists.items():
-    #         if s_key == t_key:
-    #             continue
-    #         if ratio >= threshold:
-    #             res[s_key][t_key] = ratio
-    # with open("result3.json", "w") as file:
-    #     json.dump(res, file)
+    indexer = top_k.AstIndexer(list(data_tree.items()))
+    data_set = ["name,lev,lcs,ast_str,label"]
+    loger = tools.PrintRunTime(1, len(data_tree)*4, 0)
+    for target in data_tree.keys():
+
+        potential_clones = indexer.get_top_k(target, 20)
+        tree_samples, tok_samples = {}, {}
+        for clone in potential_clones:
+            tree_samples[clone] = ast.dump(data_tree[clone], indent=4)
+            tok_samples[clone] = data_tokens[clone]
+        loger.dump(f"index \"{target}\"")
+
+        features = [f"\"{target}\""]
+
+        mat = sim_alg.levenshtein.levenshtein_dist_ratio_array(tok_samples, {target: data_tokens[target]})
+        feature = aggregate.agg_max(mat)
+        features.append(f"{feature[target]:.3f}")
+        loger.dump(f"lev \"{target}\"")
+
+        mat = sim_alg.lcs.lcs_dist_ratio_array(tok_samples, {target: data_tokens[target]})
+        feature = aggregate.agg_max(mat)
+        features.append(f"{feature[target]:.3f}")
+        loger.dump(f"lcs \"{target}\"")
+
+        mat = sim_alg.ast.ast_str_diff_array(tree_samples, {target: ast.dump(data_tree[target])})
+        feature = aggregate.agg_max(mat)
+        features.append(f"{feature[target]:.3f}")
+        loger.dump(f"ast \"{target}\"")
+
+        # mat = sim_alg.ast.ast_tree_diff_array(tree_samples, {target: ast.dump(data_tree[target])}, True)
+        # feature = aggregate.agg_max(mat)
+        # features.append(feature[target])
+        # print()
+
+        if target.startswith("plag"):
+            features.append(str(0))
+        else:
+            features.append(str(1))
+        
+        data_set.append(','.join(features))
+        loger.dump(target)
+
+    with open("test.csv", "w") as file:
+        file.write('\n'.join(data_set))
 
 
 if __name__ == "__main__":

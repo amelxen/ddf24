@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import precision_score
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 
 
 def generate_synthetic(size, dim=6, noise=0.1):
@@ -72,10 +72,14 @@ class BinClassifier:
 
 if __name__ == "__main__":
     # X, y = generate_synthetic(3000, dim=6)
-    X, y = load_data()
+    X, y = load_data("C:\\vscode_projects\\yandex_plag\\ddf24\\test1.csv")
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.33, random_state=42
+        X, y, test_size=0.2, random_state=42
     )
+    print(len(y_train), np.sum(y_train))
     model = BinClassifier(X_train, y_train, "rfc")
     y_pred = model.predict(X_test)
-    print(precision_score(y_test, y_pred))
+    print("pres=", precision_score(y_test, y_pred))
+    print("rec=", recall_score(y_test, y_pred))
+    print("f1=", f1_score(y_test, y_pred))
+    print("acc=", accuracy_score(y_test, y_pred))

@@ -1,6 +1,6 @@
 import pycode_similar
 
-import src.tools as tools
+import tools as tools
 
 
 def ast_diff_array(
@@ -31,7 +31,7 @@ def ast_str_diff_array(
     return ast_diff_array(samples, targets, pycode_similar.UnifiedDiff, debug)
 
 
-def ast_str_diff_array(
+def ast_tree_diff_array(
     samples: dict[str, str], targets: dict[str, str], debug=False
 ) -> dict[str, dict[str, float]]:
     return ast_diff_array(samples, targets, pycode_similar.TreeDiff, debug)
