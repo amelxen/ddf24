@@ -1,7 +1,7 @@
 from typing import Sequence
 import Levenshtein
 
-import src.tools as tools
+import tools as tools
 
 
 def levenshtein_dist_ratio(str1: Sequence, str2: Sequence) -> float:

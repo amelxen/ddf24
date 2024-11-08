@@ -141,11 +141,11 @@ def get_unused_vars(code: str) -> dict[str, set[int]]:
     return res
 
 
-def str_normalization(
+def tree_normalization(
     code: str,
     normalizer: type[ast.NodeTransformer] = ast.NodeTransformer,
     remove_unused=False,
-) -> str:
+) -> ast.AST:
     if normalizer is Normalizer:
         if remove_unused:
             unused_vars = get_unused_vars(code)
@@ -159,8 +159,15 @@ def str_normalization(
 
     root = ast.parse(code)
     norm.visit(root)
-    res = ast.unparse(root)
-    return res
+    return root
+
+
+def str_normalization(
+    code: str,
+    normalizer: type[ast.NodeTransformer] = ast.NodeTransformer,
+    remove_unused=False,
+) -> str:
+    return ast.unparse(tree_normalization(code, normalizer, remove_unused))
 
 
 def str_tokenize(code: str) -> list[str]:

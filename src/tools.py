@@ -35,12 +35,24 @@ def read_yandex_clear(path=pathlib.Path("yandex_clear")) -> dict[str, str]:
     return read_yandex(path, "clear_")
 
 
+def read_from_dir(path: pathlib.Path) -> dict[str, str]:
+    res = {}
+    count = 0
+    for file in path.iterdir():
+        try:
+            res[file.with_suffix("").name + str(count)] = read_code(file)
+            count += 1
+        except Exception:
+            continue
+    return res
+
+
 class PrintRunTime:
-    def __init__(self, step_unit=1, max_count: int = None):
+    def __init__(self, step_unit=1, max_count: int = None, deley = 1):
         self.start_time = time.time()
         self.count = 0
         self.last_dump_time = -1
-        self.delay = 1
+        self.delay = deley
         self.step_unit = step_unit
         self.max_count = max_count
 

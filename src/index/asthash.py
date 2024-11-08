@@ -12,7 +12,7 @@ def line_count(node):
 
 
 class AstHashVisitor:
-    def __init__(self, d, min_size=20, min_lines=5):
+    def __init__(self, d, min_size=20, min_lines=2):
         self.mod = 1000000007
         self.d = d
         self.min_size = min_size
