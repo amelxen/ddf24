@@ -1,4 +1,3 @@
-
 def agg_max(mat: dict[str, dict[str, float]]) -> dict[str, float]:
     res = {}
     for s_key, s_dists in mat.items():

@@ -5,14 +5,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
-
-
-def generate_synthetic(size, dim=6, noise=0.1):
-    X = np.random.randn(size, dim)
-    w = np.random.randn(dim + 1)
-    noise = noise * np.random.randn(size)
-    y = np.heaviside(X.dot(w[1:]) + w[0] + noise, 0)
-    return X, y
+import pathlib
+import pickle
 
 
 def load_data(path="data.csv"):
@@ -24,7 +18,21 @@ def load_data(path="data.csv"):
 
 class BinClassifier:
 
-    def __init__(self, X, y, model="rfc"):
+    def __init__(self):
+        self.model = None
+
+    def save_weights(self, path: pathlib.Path):
+        with open(path, "wb") as file:
+            pickle.dump(self.model, file)
+
+    def load_model(self, path: pathlib.Path):
+        with open(path, "rb") as file:
+            self.model = pickle.load(file)
+
+    def predict(self, X):
+        return self.model.predict(X)
+
+    def fit(self, X, y, model="rfc"):
         match model:
             case "rfc":
                 param_grid = {
@@ -66,20 +74,21 @@ class BinClassifier:
 
         self.model.fit(X, y)
 
-    def predict(self, X):
-        return self.model.predict(X)
-
 
 if __name__ == "__main__":
-    # X, y = generate_synthetic(3000, dim=6)
-    X, y = load_data("C:\\vscode_projects\\yandex_plag\\ddf24\\test1.csv")
+    X, y = load_data("test3.csv")
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
-    print(len(y_train), np.sum(y_train))
-    model = BinClassifier(X_train, y_train, "rfc")
+    model = BinClassifier()
+    model.fit(X_train, y_train, "rfc")
     y_pred = model.predict(X_test)
     print("pres=", precision_score(y_test, y_pred))
     print("rec=", recall_score(y_test, y_pred))
     print("f1=", f1_score(y_test, y_pred))
     print("acc=", accuracy_score(y_test, y_pred))
+
+    # pres= 0.9298245614035088
+    # rec= 0.8803986710963455
+    # f1= 0.9044368600682594
+    # acc= 0.9050847457627119

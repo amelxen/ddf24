@@ -1,4 +1,3 @@
-from ast import parse
 from ast import iter_child_nodes
 
 
@@ -43,18 +42,3 @@ class AstHashVisitor:
         node_hash = (1, hash(node.__class__.__name__))
         children_hash = self.visit_children(children)
         return self.save_hash(node, [node_hash] + children_hash)
-
-
-if __name__ == "__main__":
-    with open("levenshtein.py", "r") as file:
-        code = file.read()
-    d = dict()
-    visitor = AstHashVisitor(d)
-    visitor.visit(parse(code))
-
-    potential_clones = []
-    for key, value in d.items():
-        if len(value) < 2:
-            continue
-        potential_clones.append(value)
-    print(potential_clones)
