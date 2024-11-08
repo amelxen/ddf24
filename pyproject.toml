@@ -13,6 +13,9 @@ pycode-similar = "^1.4"
 zss = "^1.2.0"
 chardet = "^5.2.0"
 vulture = "^2.13"
+pandas = "^2.2.3"
+scikit-learn = "^1.5.2"
+radon = "^6.0.1"
 
 
 [build-system]
