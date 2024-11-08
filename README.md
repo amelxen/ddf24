@@ -47,8 +47,10 @@
 - Обращение по CLI
 ---
 Сборка:
-  python = ">=3.10"
-  Все зависимости в 'pyproject.toml'
+
+^python3.10
+
+Все зависимости в 'pyproject.toml'
 
 ---
 [Презенташка](https://docs.google.com/presentation/d/1lX8VI3qM7NCENPAQtxndRVCXGD2WKvrE/edit#slide=id.p4)
